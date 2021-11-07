@@ -1,29 +1,53 @@
-<html>
-  <style>
-    body{ 
-      font-size: 15pt;
-      font-family: arial;
-    }
-  </style>
+<!DOCTYPE html>
+<html lang="en">
+     <head>
+        <link href="style.css" rel="stylesheet">
+     </head>
+<p><a href="another.html">Click here to search for foods!</a></p>
+
+  <body>
+
+    <div class="Container">
+
+        <h1>Create Account</h1>
+        <h2>Please fill the entries bellow</h2>
+
+        <form method="POST" action="/add">
+            <p>user_name: <input type="text" name="user_name" placeholder="Enter username" required> </p>
+            <p>name: <input type="text" name="name" placeholder="Enter your full name" required> </p>
+            <p>email: <input type="email" name="email" placeholder="Enter your email" required> </p>
+            <input type="radio" name="sex" value="M"> Male<br>
+            <input type="radio" name="sex" value="F"> Female<br>
+            <input type="radio" name="sex" value="O"> Other<br>
+            <input type="reset" required>
+            <input type="submit" value="submit">
+            </p>
+            <-- Check constraints for sex need to be added--!>
+            <p>
+
+            </p>
+        </form>
+    </div>
 
 
-<body>
-  <h1>Some famous Computer Scientists</h1>
+
+    <div>
+        <form method="POST" action="/add_allergy">
+            <p>allergy_name: <input type="text" name="allergy_name" placeholder="enter new allergy" required> </p>
+        <input type="submit" value="submit">
+        </form>
+    </div>
+
+  <h1>Users table</h1>
+
   <div>{{data}}</div>
 
   <div>
     {% for n in data %}
-    <div>{{n}}</div>
+        <div>{{n}}</div>
     {% endfor %}
   </div>
 
-<p><a href="another">Go to the other page</a></p>
-
-<form method="POST" action="/add">
-<p>Name of new computer scientist: <input type="text" name="name"> <input type="submit" value="Add"></p>
-</form>
-
 </body>
-
 
 </html>

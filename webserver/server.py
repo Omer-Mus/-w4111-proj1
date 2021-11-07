@@ -148,6 +148,27 @@ def index():
   #
   return render_template("index.html", **context)
 
+
+
+@app.route('/search.html', methods=['POST'])
+def search_food():
+  print(request.args)
+
+
+  name = request.form['search_food']
+  cursor = g.conn.execute("SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  (F.category LIKE '%%s%') AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;", name)
+
+  names = []
+  for result in cursor:
+    names.append(result[0])  # can also be accessed using result[0]
+  cursor.close()
+
+
+  context = dict(data = names)
+
+
+  return render_template("search.html", **context)
+
 #
 # This is an example of a different path.  You can see it at:
 #
@@ -173,12 +194,12 @@ def add():
     # name = request.form['allergy_name']
     # g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
     return redirect('/')
-
-@app.route('/search_food', methods=['POST'])
-def search_food():
-    name = request.form['search_food']
-    g.conn.execute("SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  (F.category LIKE '%%s%') AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;", name)
-    return redirect('/search.html')
+#
+# @app.route('/search_food', methods=['POST'])
+# def search_food():
+#     name = request.form['search_food']
+#     g.conn.execute("SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  (F.category LIKE '%%s%') AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;", name)
+#     return redirect('/search.html')
 
 
 @app.route('/search_by_location', methods=['POST'])

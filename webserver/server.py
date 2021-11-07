@@ -150,17 +150,16 @@ def index():
 
 
 
-@app.route('/search.html', methods=['POST'])
+@app.route('/search_food', methods=['POST'])
 def search_food():
   print(request.args)
 
-
   name = request.form['search_food']
-  cursor = g.conn.execute("SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  (F.category LIKE '%%s%') AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;", name)
+  cursor = g.conn.execute(text(F"SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"))
 
   names = []
   for result in cursor:
-    names.append(result[0])  # can also be accessed using result[0]
+    names.append(result)  # can also be accessed using result[0]
   cursor.close()
 
 

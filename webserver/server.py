@@ -156,9 +156,9 @@ def index():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
-@app.route('/another.html')
+@app.route('/search.html')
 def another():
-  return render_template("another.html")
+  return render_template("search.html")
 
 
 # Example of adding new data to the database
@@ -173,6 +173,20 @@ def add():
     # name = request.form['allergy_name']
     # g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
     return redirect('/')
+
+@app.route('/search_food', methods=['POST'])
+def search_food():
+    name = request.form['search_food']
+    g.conn.execute("SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  (F.category LIKE '%%s%') AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;", name)
+    return redirect('/search.html')
+
+
+@app.route('/search_by_location', methods=['POST'])
+def search_by_location():
+    name = request.form['search_food']
+    zip_code = request.form['zip_code']
+    g.conn.execute("SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE L.zip_code = %s AND F.name LIKE '%%s%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id GROUP BY F.name, R.name;", zip_code, name)
+    return redirect('/search.html')
 
 
 @app.route('/add_allergy', methods=['POST'])

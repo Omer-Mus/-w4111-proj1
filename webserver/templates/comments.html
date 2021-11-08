@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<script>
+    function clicked() {
+        return confirm('Thank you!');
+    }
+$(function(){
+    var dtToday = new Date();
+
+    var month = dtToday.getMonth() + 1;
+    var day = dtToday.getDate();
+    var year = dtToday.getFullYear();
+    if(month < 10)
+        month = '0' + month.toString();
+    if(day < 10)
+        day = '0' + day.toString();
+
+    var maxDate = year + '-' + month + '-' + day;
+    alert(maxDate);
+    $('#txtDate').attr('max', maxDate);
+});
+</script>
+
+<style>
+    .comment {
+        height:200px;
+    }
+</style>
+<p><a href="index.html">Go back</a></p>
+{#<script>#}
+{#    var dt = new Date();#}
+{#    document.getElementById('date-time').innerHTML = dt;#}
+{#</script>#}
+
+  <body>
+
+    <div class="Container">
+
+        <h1>Search for a Dish</h1>
+        <h2>By Name</h2>
+
+        <form method="POST" action="/make_comment">
+            <p>Dish #: <input type="text" name="Dish_num" placeholder="Dish_num" required> </p>
+            <p>rating: <input type="number" step="0.01" min="0" max="5" name="rating" placeholder="(0 to 5)" required> </p>
+            <p class="comment">comment: <textarea type="text" name="comment" placeholder="comment" rows="4" cols="50" required> </textarea> </p>
+            <p>Picture: <input type="text" name="picture" value="Picture"> </p>
+            <p>date: <input type="date" name="date" id="txtDate" " required> </p>
+            <p>user_name: <input type="text" name="user_name" placeholder="username" required> </p>
+
+            <input type="submit" value="submit" onclick="return clicked();" value="Button">
+            </p>
+        </form>
+    </div>
+
+  <h1>Foods table</h1>
+
+  <div>
+    {% for n in data %}
+        <div>{{ data.index(n) }}</div>
+        <div>{{n[0]}}</div>
+    {% endfor %}
+  </div>
+    <p>End of table...</p>
+</body>
+
+</html>

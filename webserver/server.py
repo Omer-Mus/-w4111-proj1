@@ -155,7 +155,13 @@ def search_food():
   print(request.args)
 
   name = request.form['search_food']
-  cursor = g.conn.execute(text(F"SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"))
+  name  = name[0].upper() + name[1:].lower()
+
+  # cursor = g.conn.execute(text(F"SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"))
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, U.user_name, S.rating, S.comment 
+                                    FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U 
+                                    WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link 
+                                    AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name; """))
 
   names = []
   for result in cursor:
@@ -176,10 +182,87 @@ def search_food():
 # Notice that the function name is another() rather than index()
 # The functions for each app.route need to have different names
 #
+
+
 @app.route('/search.html')
 def another():
   return render_template("search.html")
 
+
+@app.route('/comments.html')
+def comments():
+    print(request.args)
+
+    # comment = request.form('comment')
+    cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
+                                  FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+                                  WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+                                  AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+    names = []
+    print("begin:")
+    for result in cursor:
+        names.append(result)
+    cursor.close()
+
+    context = dict(data=names)
+
+    return render_template("/comments.html", **context)
+
+
+@app.route('/make_comment', methods=['POST'])
+def make_comment():
+    try:
+        Dish_num = request.form['Dish_num']
+        user_name = request.form['user_name']
+        rating = request.form['rating']
+        comment = request.form['comment']
+        picture = request.form['picture']
+        date = request.form['date']
+        print("Type of: ", type(rating))
+
+        # Generate a new rid for the review.
+        cursor = g.conn.execute(text("""SELECT rid
+                                          FROM Reviews 
+                                          ORDER BY reviews 
+                                          DESC LIMIT 1;"""))
+        rid = str(cursor.fetchone())[2:-3]
+        rid = str(int(str(rid)) + 1)
+        cursor.close()
+
+        # fetches the GM_link and the fid for the review.
+
+        cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
+                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+                                      WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+                                      AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+        names = []
+        for result in cursor:
+            names.append(result)
+        cursor.close()
+
+        fid = names[int(Dish_num)][1]
+        GM_link = names[int(Dish_num)][3]
+
+        # Create a review and the create a reviewed_At relation to bond all of the components together.
+
+        g.conn.execute('INSERT INTO reviews(rid, rating, picture, comment) VALUES(%s, %s, %s, %s)', rid, rating, picture, comment)
+        g.conn.execute('INSERT INTO Reviewed_At(fid, user_name, rid, GM_link, date) VALUES (%s, %s, %s, %s, %s)', fid, user_name, rid, GM_link, date)
+
+        return redirect("/comments.html")
+    except:
+        return redirect("/comments.html")
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    print(request.args)
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            return redirect('index')
+    return render_template('login.html', error=error)
 
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
@@ -190,22 +273,40 @@ def add():
     sex = request.form['sex']
 
     g.conn.execute('INSERT INTO Users(user_name, name, email, sex) VALUES (%s, %s, %s, %s)', user_name, name, email, sex)
-    # name = request.form['allergy_name']
-    # g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
+
     return redirect('/')
+
 #
-# @app.route('/search_food', methods=['POST'])
-# def search_food():
-#     name = request.form['search_food']
-#     g.conn.execute("SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  (F.category LIKE '%%s%') AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;", name)
-#     return redirect('/search.html')
+# @app.route('/comments.html')
+# def make_comment():
+#     print(request.args)
+#
+#     # comment = request.form('comment')
+#     cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food , R.name AS restaurant, AT.GM_link
+#                                     FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+#                                     WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+#                                     AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+#     names = []
+#     print("begin:")
+#     for result in cursor:
+#         names.append(result)
+#         print(result)
+#     cursor.close()
+#
+#     context = dict(data=names)
+#
+#     return render_template("/comments.html", **context)
 
 
 @app.route('/search_by_location', methods=['POST'])
 def search_by_location():
     name = request.form['search_food']
     zip_code = request.form['zip_code']
-    g.conn.execute("SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE L.zip_code = %s AND F.name LIKE '%%s%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id GROUP BY F.name, R.name;", zip_code, name)
+    g.conn.execute("""SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating 
+                      FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L 
+                      WHERE L.zip_code = %s AND F.name LIKE '%%s%' AND Rev.rid = S.rid AND
+                      Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link 
+                      AND AT.res_id = R.res_id GROUP BY F.name, R.name;""", zip_code, name)
     return redirect('/search.html')
 
 
@@ -215,10 +316,10 @@ def add_allergy():
     g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
     return redirect('/')
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+# @app.route('/login')
+# def login():
+#     abort(401)
+#     this_is_never_executed()
 
 
 if __name__ == "__main__":

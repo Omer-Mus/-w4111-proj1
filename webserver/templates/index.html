@@ -1,9 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-     <head>
-        <link href="style.css" rel="stylesheet">
-     </head>
+
+<script>
+    function clicked() {
+    return confirm('clicked');
+}
+</script>
+<style>
+    body{
+    margin: 0 auto;
+    width:100%;
+    height:100%;
+    background-color: black;
+    color: #e6ffff;
+    overflow:hidden;
+}
+
+.container input {
+    transition: all 0.6s ease-in-out;
+}
+</style>
+
 <p><a href="search.html">Click here to search for foods!</a></p>
+<p><a href="comments.html">Click here to make a comment!</a></p>
+<p><a href="login.html">LOGIN Page</a></p>
+
   <body>
 
     <div class="Container">
@@ -19,7 +40,7 @@
             <input type="radio" name="sex" value="F"> Female<br>
             <input type="radio" name="sex" value="O"> Other<br>
             <input type="reset" required>
-            <input type="submit" value="submit">
+            <input type="submit" value="submit" onclick="return clicked();" value="Button">
             </p>
             <-- Check constraints for sex need to be added--!>
             <p>
@@ -28,23 +49,6 @@
         </form>
     </div>
 
-
-    <div>
-        <form method="POST" action="/add_allergy">
-            <p>allergy_name: <input type="text" name="allergy_name" placeholder="enter new allergy" required> </p>
-        <input type="submit" value="submit">
-        </form>
-    </div>
-
-  <h1>Users table</h1>
-
-  <div>{{data}}</div>
-
-  <div>
-    {% for n in data %}
-        <div>{{n}}</div>
-    {% endfor %}
-  </div>
 
 </body>
 

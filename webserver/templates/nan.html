@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+     <head>
+        <link href="style.css" rel="stylesheet">
+     </head>
+     <p><a href="index.html">Go back</a></p>
+
+  <body>
+
+    <div class="Container">
+
+        <h1>Search for a Dish</h1>
+        <h2>By Name</h2>
+
+        <form method="POST" action="/comment">
+            <p>make_comment: <input type="text" name="make_comment" placeholder="comment" required> </p>
+            <input type="submit" value="submit">
+            </p>
+        </form>
+    </div>
+
+  <h1>Foods table</h1>
+
+  <div>
+    {% for n in data %}
+        <div>{{n}}</div>
+    {% endfor %}
+  </div>
+
+</body>
+
+</html>

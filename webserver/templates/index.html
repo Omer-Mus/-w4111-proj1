@@ -1,55 +1,205 @@
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{##}
+{#<script>#}
+{#    function clicked() {#}
+{#    return confirm('clicked');#}
+{#}#}
+{#</script>#}
+{#<style>#}
+{#        #container {#}
+{#    width: 600px;#}
+{#    margin: 0px auto;#}
+{#}#}
+{##}
+{##announcement-editor {#}
+{#    margin-top: 20px;#}
+{#    margin-bottom: 40px;#}
+{#}#}
+{##}
+{##new-announcement-subject {#}
+{#    display: block;#}
+{#    margin-bottom: 10px;#}
+{#    width: 100%;#}
+{#}#}
+{##}
+{##new-announcement-body {#}
+{#    display: block;#}
+{#    margin-bottom: 10px;#}
+{#    width: 100%;#}
+{#    height: 80px;#}
+{##}
+{#}#}
+{##}
+{##the-title {#}
+{##}
+{#    margin-bottom: 10px;#}
+{#    width: 100%;#}
+{#    height: 80px;#}
+{#    text-align: center;#}
+{#    background-color: black;#}
+{#    color: white;#}
+{#    font-size: xxx-large;#}
+{#}#}
+{#.images {#}
+{#    display: block;#}
+{#    margin-bottom: 10px;#}
+{#    width: 80px;#}
+{#    height: 80px;#}
+{#}#}
+{#.announcement {#}
+{#    display: block;#}
+{#    margin-bottom: 40px;#}
+{#    padding: 30px 0px 0px 0px;#}
+{#    border-top: 1px solid #CCCCCC;#}
+{#    width: 100%;#}
+{#}#}
+{##}
+{#.announcement-subject {#}
+{#    display: block;#}
+{#    margin-bottom: 15px;#}
+{#    font-weight: bold;#}
+{#}#}
+{##}
+{#.announcement-body {#}
+{#    display: block;#}
+{#}#}
+{#</style>#}
+{##}
+{#<p><a href="search.html">Click here to search for foods!</a></p>#}
+{#<p><a href="comments.html">Click here to make a comment!</a></p>#}
+{#<p><a href="login.html">LOGIN Page</a></p>#}
+{##}
+{#  <body>#}
+{##}
+{#    <div class="container">#}
+{##}
+{#        <h1>Create Account</h1>#}
+{#        <h2>Please fill the entries bellow</h2>#}
+{##}
+{#        <form method="POST" action="/add">#}
+{#            <p>user_name: <input type="text" name="user_name" placeholder="Enter username" required> </p>#}
+{#            <p>name: <input type="text" name="name" placeholder="Enter your full name" required> </p>#}
+{#            <p>email: <input type="email" name="email" placeholder="Enter your email" required> </p>#}
+{#            <input type="radio" name="sex" value="M"> Male<br>#}
+{#            <input type="radio" name="sex" value="F"> Female<br>#}
+{#            <input type="radio" name="sex" value="O"> Other<br>#}
+{#            <input type="reset" required>#}
+{#            <input type="submit" value="submit" onclick="return clicked();" value="Button">#}
+{#            </p>#}
+{##}
+{#        </form>#}
+{#    </div>#}
+{##}
+{##}
+{#</body>#}
+{##}
+{#</html>#}
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
+    <head>
+        <!-- Bootstrap for button styling -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'style.css') }}">
 
-<script>
-    function clicked() {
-    return confirm('clicked');
+    </head>
+    <style>
+                #container {
+    width: 600px;
+    margin: 0px auto;
 }
-</script>
-<style>
-    body{
-    margin: 0 auto;
-    width:100%;
-    height:100%;
+
+#announcement-editor {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+#new-announcement-subject {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+#new-announcement-body {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+
+}
+
+#the-title {
+
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+    text-align: center;
     background-color: black;
-    color: #e6ffff;
-    overflow:hidden;
+    color: white;
+    font-size: xxx-large;
+}
+#the-title {
+
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+    text-align: center;
+    background-color: black;
+    color: white;
+    font-size: xxx-large;
 }
 
-.container input {
-    transition: all 0.6s ease-in-out;
+.images {
+    display: block;
+    margin-bottom: 10px;
+    width: 80px;
+    height: 80px;
 }
-</style>
+.announcement {
+    display: block;
+    margin-bottom: 40px;
+    padding: 30px 0px 0px 0px;
+    border-top: 1px solid #CCCCCC;
+    width: 100%;
+}
 
-<p><a href="search.html">Click here to search for foods!</a></p>
-<p><a href="comments.html">Click here to make a comment!</a></p>
-<p><a href="login.html">LOGIN Page</a></p>
+.announcement-subject {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
 
-  <body>
+.announcement-body {
+    display: block;
+}
 
-    <div class="Container">
+    </style>
 
-        <h1>Create Account</h1>
-        <h2>Please fill the entries bellow</h2>
-
+    <body>
+        <div id ="the-title">Create Here a new Username</div>
+        <div id="container">
+            <div id="announcement-editor">
         <form method="POST" action="/add">
-            <p>user_name: <input type="text" name="user_name" placeholder="Enter username" required> </p>
-            <p>name: <input type="text" name="name" placeholder="Enter your full name" required> </p>
-            <p>email: <input type="email" name="email" placeholder="Enter your email" required> </p>
+
+            <input type="text" id="new-announcement-subject" class="form-control" name="user_name" placeholder="Enter username" required> <br>
+            <input type="text" id="new-announcement-body" class="form-control" name="name" placeholder="Enter your full name" required><br>
+            <input type="email" name="email" placeholder="Enter your email" required><br>
             <input type="radio" name="sex" value="M"> Male<br>
             <input type="radio" name="sex" value="F"> Female<br>
             <input type="radio" name="sex" value="O"> Other<br>
-            <input type="reset" required>
-            <input type="submit" value="submit" onclick="return clicked();" value="Button">
-            </p>
-            <-- Check constraints for sex need to be added--!>
-            <p>
+             <input id="reset-button" type="reset"  class="btn btn-primary" value="reset">
+            <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
 
-            </p>
         </form>
-    </div>
-
-
-</body>
-
+            <br><br>
+            <p><a href="search.html">Click here to search for foods!</a></p>
+            <p><a href="comments.html">Click here to make a comment!</a></p>
+            <p><a href="login.html">LOGIN Page</a></p>
+            </div>
+            <div id="announcements">
+            </div>
+        </div>
+    </body>
 </html>
+

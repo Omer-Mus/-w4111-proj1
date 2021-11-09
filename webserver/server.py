@@ -194,8 +194,8 @@ def comments():
     print(request.args)
 
     # comment = request.form('comment')
-    cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
-                                  FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+    cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, R.name AS restaurant, S.picture
+                                  FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
                                   WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
                                   AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
     names = []

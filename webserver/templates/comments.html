@@ -1,66 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
-<script>
-    function clicked() {
-        return confirm('Thank you!');
-    }
-$(function(){
-    var dtToday = new Date();
+<html>
+    <head>
+        <!-- Bootstrap for button styling -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'announcements.css') }}">
 
-    var month = dtToday.getMonth() + 1;
-    var day = dtToday.getDate();
-    var year = dtToday.getFullYear();
-    if(month < 10)
-        month = '0' + month.toString();
-    if(day < 10)
-        day = '0' + day.toString();
+    </head>
+    <style>
+        #container {
+    width: 600px;
+    margin: 0px auto;
+}
 
-    var maxDate = year + '-' + month + '-' + day;
-    alert(maxDate);
-    $('#txtDate').attr('max', maxDate);
-});
-</script>
+#announcement-editor {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
 
-<style>
-    .comment {
-        height:200px;
-    }
+#new-announcement-subject {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+#new-announcement-body {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+
+}
+
+#the-title {
+
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+    text-align: center;
+    background-color: black;
+    color: white;
+    font-size: xxx-large;
+}
+.images {
+    display: block;
+    margin-bottom: 10px;
+    width: 80px;
+    height: 80px;
+}
+.announcement {
+    display: block;
+    margin-bottom: 40px;
+    padding: 30px 0px 0px 0px;
+    border-top: 1px solid #CCCCCC;
+    width: 100%;
+}
+
+.announcement-subject {
+    display: block;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.announcement-body {
+    display: block;
+}
+
 </style>
-<p><a href="index.html">Go back</a></p>
-{#<script>#}
-{#    var dt = new Date();#}
-{#    document.getElementById('date-time').innerHTML = dt;#}
-{#</script>#}
+    <body>
+    <div><a href="/">Go back</a></div>
+    <div id="the-title">Write a comment here!</div>
+        <div id="container">
+            <div id="announcement-editor">
+                <input type="text" id="new-announcement-subject" class="form-control" name="subject" placeholder="Dish #" required>
+                <input type="number" class="form-control" step="0.01" min="0" max="5" name="rating" placeholder="(0 to 5)" required>
+                <textarea id="new-announcement-body" class="form-control" name="body-text" placeholder="Write a comment here"></textarea>
+                <input type="text" class="form-control" name="picture" value="Picture">
+                <input type="date" name="date" id="txtDate"  required>
+                <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
+            </div>
 
-  <body>
+        {% for n in data %}
+            <div id="announcements">
+                <div class="announcement">
+                    <span class="announcement-subject">
+                        {{ data.index(n)}}
+                    </span>
+                    <span class="announcement-body">
+                        {{n[0]}}
+                    </span>
+                     <span class="announcement-body">
+                        {{n[1]}}
+                    </span>
+                    <span class="announcement-body">
+                       <img class="images" src="{{n[2]}}">
+                    </span>
+                </div>
 
-    <div class="Container">
+            </div>
 
-        <h1>Search for a Dish</h1>
-        <h2>By Name</h2>
+            {% endfor %}
 
-        <form method="POST" action="/make_comment">
-            <p>Dish #: <input type="text" name="Dish_num" placeholder="Dish_num" required> </p>
-            <p>rating: <input type="number" step="0.01" min="0" max="5" name="rating" placeholder="(0 to 5)" required> </p>
-            <p class="comment">comment: <textarea type="text" name="comment" placeholder="comment" rows="4" cols="50" required> </textarea> </p>
-            <p>Picture: <input type="text" name="picture" value="Picture"> </p>
-            <p>date: <input type="date" name="date" id="txtDate" " required> </p>
-            <p>user_name: <input type="text" name="user_name" placeholder="username" required> </p>
 
-            <input type="submit" value="submit" onclick="return clicked();" value="Button">
-            </p>
-        </form>
-    </div>
 
-  <h1>Foods table</h1>
-
-  <div>
-    {% for n in data %}
-        <div>{{ data.index(n) }}</div>
-        <div>{{n[0]}}</div>
-    {% endfor %}
-  </div>
-    <p>End of table...</p>
-</body>
-
+        </div>
+    </body>
 </html>
+

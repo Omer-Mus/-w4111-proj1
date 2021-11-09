@@ -7,14 +7,23 @@
 
     <div class="Container">
 
-        <h1>Search for a Dish</h1>
-        <h2>By Name</h2>
+        <h1>Search for a Dish by Name</h1>
 
         <form method="POST" action="/search_food">
             <p>Search: <input type="text" name="search_food" placeholder="Enter a name of a dish" required> </p>
             <input type="submit" value="submit">
             </p>
         </form>
+
+        <h1>Search for a Dish by Location</h1>
+
+        <form method="POST" action="/search_by_location">
+          <p>Search: <input type="text" name="search_by_location" placeholder="Enter the name" required>
+            <input type="text" name="zip_code" placeholder="Enter the zipcode" required>  </p>
+          <input type="submit" value="submit">
+          </p>
+        </form>
+
     </div>
 
   <h1>Foods table</h1>

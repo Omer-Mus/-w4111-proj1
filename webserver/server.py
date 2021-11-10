@@ -332,11 +332,52 @@ def add_allergy():
     g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
     return redirect('/')
 
-# @app.route('/login')
-# def login():
-#     abort(401)
-#     this_is_never_executed()
 
+
+
+# New Page for Comment History!!!!!!
+
+
+@app.route('/comments_history.html')
+def comments_history():
+    print(request.args)
+
+    # comment = request.form('comment')
+    cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
+                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+                                      WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+                                      AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+    names = []
+
+    for result in cursor:
+        names.append(result)
+    cursor.close()
+
+    context = dict(data=names)
+
+    return render_template("comments_history.html")
+
+
+@app.route('/comments_history_search', methods=['POST'])
+def comments_history_search():
+    print(request.args)
+    user_name = request.form['user_name']
+
+    cursor = g.conn.execute(text(F"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment
+                                     FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
+                                     WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+                                     AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND Rev.user_name = 'Test'
+                                     AND S.rid = Rev.rid;
+                                      """))
+
+    names = []
+    for result in cursor:
+        names.append(result)  # can also be accessed using result[0]
+    cursor.close()
+
+    context = dict(data=names)
+
+    return render_template("comments_history.html", **context)
 
 if __name__ == "__main__":
   import click

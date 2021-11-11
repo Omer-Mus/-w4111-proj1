@@ -55,3 +55,7 @@
 .announcement-body {
     display: block;
 }
+
+.alert-error{
+    font-size: 25px;
+}

@@ -307,12 +307,12 @@ def add():
 def search_by_location():
     print(request.args)
     name = request.form['search_by_location']
-    name = name[0].upper() + name[1:].lower()
+    name = ' '.join(word[0].upper() + word[1:] for word in name.split())
 
     zip_code = request.form['zip_code']
     cursor = g.conn.execute(text(F"""SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating 
                       FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L 
-                      WHERE L.zip_code = '%{zip_code}%' AND F.name LIKE '%{name}%' AND Rev.rid = S.rid AND
+                      WHERE L.zip_code LIKE '%{zip_code}%' AND F.name LIKE '%{name}%' AND Rev.rid = S.rid AND
                       Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link 
                       AND AT.res_id = R.res_id GROUP BY F.name, R.name;"""))
                       

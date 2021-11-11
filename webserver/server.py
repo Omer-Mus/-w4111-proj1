@@ -229,6 +229,8 @@ def make_comment():
         rid = str(int(str(rid)) + 1)
         cursor.close()
 
+        print("rid=", rid)
+
         # fetches the GM_link and the fid for the review.
 
         cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
@@ -246,16 +248,18 @@ def make_comment():
         # print(fid)
         # print(GM_link)
         # print(names[int(Dish_num)][0])
-
-
         # Create a review and the create a reviewed_At relation to bond all of the components together.
 
         g.conn.execute('INSERT INTO reviews(rid, rating, picture, comment) VALUES(%s, %s, %s, %s)', rid, rating, picture, comment)
+        # try:
         g.conn.execute('INSERT INTO Reviewed_At(fid, user_name, rid, GM_link, date) VALUES (%s, %s, %s, %s, %s)', fid, user_name, rid, GM_link, date)
-
-        return redirect("/comments.html")
-    except:
-        return redirect("/comments.html")
+        # except Exception as E:
+        #     g.conn.execute(text(f"""DELETE FROM Review WHERE rid='{rid}'; """))
+        #     return render_template('comments.html', error=f'ERROR:\nSomething went wrong. wrong date. Please input a vaild date.')
+    except Exception as E:
+        g.conn.execute(text(f"""DELETE FROM Reviews WHERE rid='{rid}'; """))
+        return render_template('comments.html', error=f'ERROR:\nSomething went wrong. i.e., Foods index DNE, invalid date, wrong username, etc.')
+    return redirect("/comments.html")
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -277,30 +281,13 @@ def add():
     email = request.form['email']
     sex = request.form['sex']
 
-    g.conn.execute('INSERT INTO Users(user_name, name, email, sex) VALUES (%s, %s, %s, %s)', user_name, name, email, sex)
+    try:
+        g.conn.execute('INSERT INTO Users(user_name, name, email, sex) VALUES (%s, %s, %s, %s)', user_name, name, email, sex)
+        return redirect('/')
+    except Exception as E:
+        return render_template('index.html', error=f'ERROR:\nThe user name {user_name} or the email {email} already exist.')
 
-    return redirect('/')
 
-#
-# @app.route('/comments.html')
-# def make_comment():
-#     print(request.args)
-#
-#     # comment = request.form('comment')
-#     cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food , R.name AS restaurant, AT.GM_link
-#                                     FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
-#                                     WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
-#                                     AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
-#     names = []
-#     print("begin:")
-#     for result in cursor:
-#         names.append(result)
-#         print(result)
-#     cursor.close()
-#
-#     context = dict(data=names)
-#
-#     return render_template("/comments.html", **context)
 
 
 @app.route('/search_by_location', methods=['POST'])
@@ -343,6 +330,7 @@ def comments_history():
     print(request.args)
 
     # comment = request.form('comment')
+    # try:
     cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
                                       FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
                                       WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
@@ -356,6 +344,8 @@ def comments_history():
     context = dict(data=names)
 
     return render_template("comments_history.html")
+    # except Exception as E:
+    #     return render_template("comments_history.html", error = f'ERROR:\nThe user name {names[0]} Does not exist')
 
 
 @app.route('/comments_history_search', methods=['POST'])
@@ -366,7 +356,7 @@ def comments_history_search():
     cursor = g.conn.execute(text(F"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment
                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
                                      WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
-                                     AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND Rev.user_name = 'Test'
+                                     AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND Rev.user_name = '{user_name}'
                                      AND S.rid = Rev.rid;
                                       """))
 

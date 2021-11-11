@@ -174,10 +174,14 @@
     display: block;
 }
 
+.alert-error{
+    font-size: 25px;
+}
+
     </style>
 
     <body>
-        <div id ="the-title">Create Here a new Username</div>
+        <div id ="the-title">Create Here a new User</div>
         <div id="container">
             <div id="announcement-editor">
         <form method="POST" action="/add">
@@ -200,6 +204,11 @@
             </div>
             <div id="announcements">
             </div>
+                <div class="alert-error">
+                    {% if error %}
+                        {{ error }}
+                    {% endif %}
+                </div>
         </div>
     </body>
 </html>

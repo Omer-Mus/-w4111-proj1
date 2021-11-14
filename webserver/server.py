@@ -194,10 +194,10 @@ def comments():
     print(request.args)
 
     # comment = request.form('comment')
-    cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
-                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+    cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link, S.picture
+                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
                                       WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
-                                      AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+                                      AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND Rev.rid = S.rid;"""))
     names = []
 
     for result in cursor:
@@ -229,7 +229,7 @@ def make_comment():
         rid = str(int(str(rid)) + 1)
         cursor.close()
 
-        print("rid=", rid)
+        # print("rid=", rid)
 
         # fetches the GM_link and the fid for the review.
 
@@ -288,18 +288,16 @@ def add():
         return render_template('index.html', error=f'ERROR:\nThe user name {user_name} or the email {email} already exist.')
 
 
-
-
 @app.route('/search_by_location', methods=['POST'])
 def search_by_location():
     print(request.args)
     name = request.form['search_by_location']
-    name = name[0].upper() + name[1:].lower()
+    name = ' '.join(word[0].upper() + word[1:] for word in name.split())
 
     zip_code = request.form['zip_code']
     cursor = g.conn.execute(text(F"""SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating 
                       FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L 
-                      WHERE L.zip_code = '%{zip_code}%' AND F.name LIKE '%{name}%' AND Rev.rid = S.rid AND
+                      WHERE L.zip_code LIKE '%{zip_code}%' AND F.name LIKE '%{name}%' AND Rev.rid = S.rid AND
                       Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link 
                       AND AT.res_id = R.res_id GROUP BY F.name, R.name;"""))
                       
@@ -313,17 +311,14 @@ def search_by_location():
     return render_template("search.html", **context)
 
 
-@app.route('/add_allergy', methods=['POST'])
-def add_allergy():
-    name = request.form['allergy_name']
-    g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
-    return redirect('/')
-
-
-
+# @app.route('/add_allergy', methods=['POST'])
+# def add_allergy():
+#     name = request.form['allergy_name']
+#     g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
+#     return redirect('/')
+#
 
 # New Page for Comment History!!!!!!
-
 
 @app.route('/comments_history.html')
 def comments_history():
@@ -353,7 +348,7 @@ def comments_history_search():
     print(request.args)
     user_name = request.form['user_name']
 
-    cursor = g.conn.execute(text(F"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment
+    cursor = g.conn.execute(text(F"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture
                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
                                      WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
                                      AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND Rev.user_name = '{user_name}'

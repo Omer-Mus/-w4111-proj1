@@ -314,11 +314,11 @@ def search_by_location():
 
 @app.route('/dish_comments/<fid>')
 def dish_comments(fid):
-        cursor = g.conn.execute(text(f"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture, S.rating
-                                         FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
+        cursor = g.conn.execute(text(f"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture, S.rating, U.user_name
+                                         FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S, Users U
                                          WHERE  Rev.fid = F.fid  AND F.fid = '{fid}' AND  AT.GM_link = Rev.GM_link AND
                                          AT.GM_link = L.GM_link AND AT.res_id = R.res_id
-                                         AND S.rid = Rev.rid;"""))
+                                         AND S.rid = Rev.rid AND U.user_name = Rev.user_name;"""))
 
 
         names = []

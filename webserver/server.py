@@ -176,13 +176,51 @@ def search_food():
     names.append(result)  # can also be accessed using result[0]
   cursor.close()
 
+  context = dict(data = names)
+
+  return render_template("search.html", **context)
+
+
+#
+# Users can search food without some allergies.
+# Users can reduce the search by excluding allregies if theu have.
+#
+@app.route('/search_food_allergy', methods=['POST'])
+def search_food_allergy():
+  print(request.args)
+
+  fname = request.form['fname']
+  original = fname
+  allergy = request.form['allergy']
+  fname  = fname[0].upper() + fname[1:].lower()
+  fname = ' '.join(word[0].upper() + word[1:] for word in fname.split())
+
+  print(fname, allergy)
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price, f.fid
+                                    FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U, Food_contain CC 
+                                    WHERE  (F.name LIKE '%{fname}%'OR F.name LIKE '%{original}%' OR F.name = 'name') AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link  
+                                    AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name AND CC.fid = F.fid 
+                                    AND F.fid NOT IN (SELECT Fo.fid FROM Foods Fo, Food_Contain FC WHERE Fo.fid = FC.fid and FC.allergy_name = '{allergy}')
+                                    GROUP BY Food, restaurant, f.price, f.fid;
+                                    """))
+
+  names = []
+  for result in cursor:
+    names.append(result)  # can also be accessed using result[0]
+    print(result)
+  cursor.close()
+
+  # cursor2 = g.conn.execute(text(F"""SELECT allergy_name FROM Allergies;"""))
+  # names2 = []
+  # for i in cursor2:
+  #   names2.append(i)
+  # cursor2.close()
 
 
   context = dict(data = names)
 
 
-  return render_template("search.html", **context)
-
+  return render_template("search.html", **context, )
 
 
 #

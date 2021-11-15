@@ -78,7 +78,8 @@
                 <textarea id="new-announcement-body" class="form-control" name="comment" placeholder="Write a comment here"></textarea>
                 <input type="text" class="form-control" name="picture" placeholder="Picture">
                  <input type="text" class="form-control" name="user_name" placeholder="user name" required>
-                <input type="date" name="date" id="txtDate"  required>
+                <input type="date" name="date" id="txtDate"  require>
+
                 <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
             </form>
             </div>
@@ -107,16 +108,14 @@
                  <span class="announcement-body">
                         {{n[3]}}
                     </span>
-                    <span class="announcement-body">
-                       <img class="images" src="{{n[4]}}">
-                    </span>
+{#                    <span class="announcement-body">#}
+{#                       <img class="images" src="{{n[4]}}">#}
+{#                    </span>#}
                 </div>
 
             </div>
 
             {% endfor %}
-
-
 
         </div>
     </body>

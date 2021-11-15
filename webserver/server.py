@@ -160,11 +160,11 @@ def search_food():
 
 
   # cursor = g.conn.execute(text(F"SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"))
-  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price, f.fid
                                     FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U 
                                     WHERE  (F.name LIKE '%{name}%' OR F.name = '{name}') AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link 
                                     AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name
-                                    GROUP BY Food, restaurant, f.price"""))
+                                    GROUP BY Food, restaurant, f.price, f.fid"""))
 
   names = []
   for result in cursor:
@@ -295,11 +295,11 @@ def search_by_location():
     name = ' '.join(word[0].upper() + word[1:] for word in name.split())
     print(name)
     zip_code = request.form['zip_code']
-    cursor = g.conn.execute(text(F"""SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating, F.price
+    cursor = g.conn.execute(text(F"""SELECT F.name as Dish, R.name as Restaurant, AVG(S.rating) as rating, F.price, F.fid
                       FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L 
                       WHERE L.zip_code LIKE '%{zip_code}%' AND F.name LIKE '%{name}%' AND Rev.rid = S.rid AND
                       Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link 
-                      AND AT.res_id = R.res_id GROUP BY F.name, R.name, F.price;"""))
+                      AND AT.res_id = R.res_id GROUP BY F.name, R.name, F.price, F.fid;"""))
 
     # SELECT F.name AS Food, R.name AS restaurant, U.user_name, S.rating, S.comment
     names = []

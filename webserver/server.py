@@ -155,13 +155,10 @@ def search_food():
   print(request.args)
 
   name = request.form['search_food']
-<<<<<<< HEAD
   name  = name[0].upper() + name[1:].lower()
-=======
   name = ' '.join(word[0].upper() + word[1:] for word in name.split())
 
 
->>>>>>> 0ff7e21545c8cae6e985c3593b0563219a84281f
   # cursor = g.conn.execute(text(F"SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"))
   cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price
                                     FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U 
@@ -190,7 +187,9 @@ def search_food():
 #
 
 
-
+@app.route('/search.html')
+def another():
+    return render_template('search.html')
 @app.route('/comments.html')
 def comments():
     print(request.args)
@@ -313,18 +312,27 @@ def search_by_location():
     return render_template("search.html", **context)
 
 
+@app.route('/dish_comments/<fid>')
+def dish_comments(fid):
+        cursor = g.conn.execute(text(f"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture, S.rating
+                                         FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
+                                         WHERE  Rev.fid = F.fid  AND F.fid = '{fid}' AND  AT.GM_link = Rev.GM_link AND
+                                         AT.GM_link = L.GM_link AND AT.res_id = R.res_id
+                                         AND S.rid = Rev.rid;"""))
 
 
-<<<<<<< HEAD
-@app.route('/dish_comments.html')
-def another():
-  return render_template("dish_comments.html")
-=======
+        names = []
+        for result in cursor:
+            names.append(result)  # can also be accessed using result[0]
+        cursor.close()
+
+        context = dict(data=names)
+
+        return render_template('/dish_comments.html', **context)
 # @app.route('/dish_comments.html')
 # def another():
 #     return render_template("dish_comments.html")
 
->>>>>>> 0ff7e21545c8cae6e985c3593b0563219a84281f
 
 
 # @app.route('/dish_comments.html', methods=['POST'])

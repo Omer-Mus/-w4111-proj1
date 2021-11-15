@@ -158,7 +158,7 @@ def search_food():
   name  = name[0].upper() + name[1:].lower()
 
   # cursor = g.conn.execute(text(F"SELECT DISTINCT F.name as Dish, R.name as Restaurant, F.category FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND  Rev.fid = F.fid AND AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"))
-  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, U.user_name, S.rating, S.comment 
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, U.user_name, S.rating, S.comment
                                     FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U 
                                     WHERE  F.category LIKE '%{name}%' AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link 
                                     AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name; """))
@@ -300,7 +300,8 @@ def search_by_location():
                       WHERE L.zip_code LIKE '%{zip_code}%' AND F.name LIKE '%{name}%' AND Rev.rid = S.rid AND
                       Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link 
                       AND AT.res_id = R.res_id GROUP BY F.name, R.name;"""))
-                      
+
+    # SELECT F.name AS Food, R.name AS restaurant, U.user_name, S.rating, S.comment
     names = []
     for result in cursor:
       names.append(result)  # can also be accessed using result[0]
@@ -311,12 +312,34 @@ def search_by_location():
     return render_template("search.html", **context)
 
 
-# @app.route('/add_allergy', methods=['POST'])
-# def add_allergy():
-#     name = request.form['allergy_name']
-#     g.conn.execute('INSERT INTO Allergies(allergy_name) VALUES (%s)', name)
-#     return redirect('/')
-#
+
+
+@app.route('/dish_comments.html')
+def another():
+    return render_template("dish_comments.html")
+
+
+
+@app.route('/dish_comments.html', methods=['POST'])
+def search_by_location():
+    print(request.args)
+
+    fid = request.form['fid']
+    cursor = g.conn.execute(text(f"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture, S.rating
+                                     FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
+                                     WHERE  Rev.fid = F.fid  AND F.fid = '{fid}' AND  AT.GM_link = Rev.GM_link AND
+                                     AT.GM_link = L.GM_link AND AT.res_id = R.res_id
+                                     AND S.rid = Rev.rid;"""))
+
+    names = []
+    for result in cursor:
+        names.append(result)  # can also be accessed using result[0]
+    cursor.close()
+
+    context = dict(data=names)
+
+    return render_template('/dish_comments.html', **context)
+
 
 # New Page for Comment History!!!!!!
 
@@ -390,3 +413,5 @@ if __name__ == "__main__":
     app.run(host=HOST, port=PORT, debug=debug, threaded=threaded)
 
   run()
+
+

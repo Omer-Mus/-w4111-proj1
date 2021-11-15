@@ -11,90 +11,105 @@
 </head>
 <style>
     #container {
-width: 600px;
-margin: 0px auto;
+    width: 600px;
+    margin: 0px auto;
 }
 
 #announcement-editor {
-margin-top: 20px;
-margin-bottom: 40px;
+    margin-top: 20px;
+    margin-bottom: 40px;
 }
 
 #new-announcement-subject {
-display: block;
-margin-bottom: 10px;
-width: 100%;
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
 }
 
 #new-announcement-body {
-display: block;
-margin-bottom: 10px;
-width: 100%;
-height: 80px;
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
 
 }
 
 #the-title {
 
-margin-bottom: 10px;
-width: 100%;
-height: 80px;
-text-align: center;
-background-color: black;
-color: white;
-font-size: xxx-large;
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+    text-align: center;
+    background-color: black;
+    color: white;
+    font-size: xxx-large;
 }
+#the-title {
+
+    margin-bottom: 10px;
+    width: 100%;
+    height: 80px;
+    text-align: center;
+    background-color: black;
+    color: white;
+    font-size: xxx-large;
+}
+
 .images {
-display: block;
-margin-bottom: 10px;
-width: 80px;
-height: 80px;
+    display: block;
+    margin-bottom: 10px;
+    width: 80px;
+    height: 80px;
 }
 .announcement {
-display: block;
-margin-bottom: 40px;
-padding: 30px 0px 0px 0px;
-border-top: 1px solid #CCCCCC;
-width: 100%;
+    display: block;
+    margin-bottom: 40px;
+    padding: 30px 0px 0px 0px;
+    border-top: 1px solid #CCCCCC;
+    width: 100%;
 }
 
 .announcement-subject {
-display: block;
-margin-bottom: 15px;
-font-weight: bold;
+    display: block;
+    margin-bottom: 15px;
+    font-weight: bold;
 }
 
 .announcement-body {
-display: block;
+    display: block;
 }
+
+.alert-error{
+    font-size: 25px;
+}
+
 
 </style>
 
   <body>
 
-    <div class="container">
+<div id = "the-title">Search </div>
+<div><a href="/">Go back</a></div>
 
-        <div id = "the-title">Search </div>
-        <div><a href="/">Go back</a></div>
-
+    <div id="container">
         <div id = "announcement-editor">
         <form method="POST" action="/search_food">
-            <p>Search by Name: <input type="text" name="search_food" placeholder="Enter the name" required> </p>
-            <input type="submit" value="submit">
-            </p>
+            <input type="text" id="new-announcement-subject" class="form-control" name="search_food" placeholder="Enter the name" required>
+            <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
         </form>
         </div>
 
+        <div id = "announcement-editor">
         <form method="POST" action="/search_by_location">
-          <p>Search by Location: <input type="text" name="search_by_location" placeholder="Enter the name" required>
-            <input type="text" name="zip_code" inputmode="numeric" pattern="^(?(^00000(|-0000))|(\d{5}(|-\d{4})))$" maxlength = "5" minlength = "5" placeholder="Enter the zipcode" required>  </p>
-          <input type="submit" value="submit">
-          </p>
+           <input type="text" name="search_by_location" placeholder="Enter the name" required>
+            <input type="text"  name="zip_code" inputmode="numeric" pattern="^(?(^00000(|-0000))|(\d{5}(|-\d{4})))$" maxlength = "5" minlength = "5" placeholder="Enter the zipcode" required>
+            <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
         </form>
+        </div>
 
         <h1>Results</h1>
 
-  <div>
+
     {% for n in data %}
     <div id="announcements">
         <div class="announcement">
@@ -104,25 +119,24 @@ display: block;
             <span class="announcement-body">
                 {{n[0]}}
             </span>
-            <span class="announcement-body">
-                {{n[2]}}
-            </span>
+{#            <span class="announcement-body">#}
+{#                {{n[2]}}#}
+{#            </span>#}
              <span class="announcement-body">
                 {{n[1]}}
             </span>
             <span class="announcement-body">
                 {{n[3]}}
             </span>
-{#                    <span class="announcement-body">#}
-{#                       <img class="images" src="{{n[2]}}">#}
-{#                    </span>#}
+                    <span class="announcement-body">
+                       <img class="images" src="{{n[2]}}">
+                    </span>
         </div>
 
     </div>
 
     {% endfor %}
 
-    </div>
 
   </div>
 

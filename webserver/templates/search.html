@@ -117,21 +117,18 @@
                 {{ data.index(n)}}
             </span>
             <span class="announcement-body">
-<<<<<<< HEAD
-                {{n[0]}}
 
-=======
->>>>>>> 16a1eaedb7deaf8a0863fe11c65a4aa5aee1916b
                 Dish: {{n[0]}}
             </span>
             <span class="announcement-body">
-                Rating: {{n[2]}}
+{#                reduce rating to 2 decimals           #}
+                Rating:  {{'%0.2f'| format(n[2]|float)}}
             </span>
              <span class="announcement-body">
                 Restaurant: {{n[1]}}
             </span>
             <span class="announcement-body">
-                Price: {{n[3]}}
+                Price: {{n[3]}} $
             </span>
                     <span class="announcement-body">
                        <img class="images" src="{{n[2]}}">
@@ -140,11 +137,9 @@
                     <!-- <span class="announcement-body">
                        <img class="images" src="{{n[3]}}">
                     </span> -->
-<<<<<<< HEAD
-=======
+
             <div><a href="/dish_comments/{{n[4]}}">See Reviews</a></div>
 
->>>>>>> 16a1eaedb7deaf8a0863fe11c65a4aa5aee1916b
         </div>
 
     </div>
@@ -157,3 +152,4 @@
 </body>
 
 </html>
+

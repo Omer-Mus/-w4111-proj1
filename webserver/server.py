@@ -1,14 +1,17 @@
 """
 Columbia's COMS W4111.001 Introduction to Databases
-Example Webserver
-To run locally:
-    python3 server.py
-Go to http://localhost:8111 in your browser.
-A debugger such as "pdb" may be helpful for debugging.
-Read about it online.
+Authors: Omer Mustel (om2349), Dayna Lee (dl3410)
+Date: Nov 15, 2021
+
+DB Changes log:
+    - tables change: Reviewed_At p_key changed (rid excluded). Now users can review a food only once.
+
+index.html:
+    create a username.
+    direct
 """
 import os
-  # accessible as a variable in index.html:
+# accessible as a variable in index.html:
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
@@ -148,8 +151,10 @@ def index():
   #
   return render_template("index.html", **context)
 
-
-
+#
+# The user gets to input some name or a part of a name of some food and get back all possible options.
+# Users can also search for dishes by locations and more.
+#
 @app.route('/search_food', methods=['POST'])
 def search_food():
   print(request.args)
@@ -172,24 +177,28 @@ def search_food():
   cursor.close()
 
 
+
   context = dict(data = names)
 
 
   return render_template("search.html", **context)
 
-#
-# This is an example of a different path.  You can see it at:
-#
-#     localhost:8111/another
-#
-# Notice that the function name is another() rather than index()
-# The functions for each app.route need to have different names
-#
 
 
+#
+#  search.html template
+#
 @app.route('/search.html')
 def another():
     return render_template('search.html')
+
+
+
+#
+# Displaying all possible foods to make a comment on.
+# If a user falsy user wrong user name, future date, try to rate food again, or any other invalid transaction,
+# The review will be deleted and an error message will appear on thr screen.
+#
 @app.route('/comments.html')
 def comments():
     print(request.args)
@@ -209,6 +218,14 @@ def comments():
     return render_template("/comments.html", **context)
 
 
+
+#
+# The app the all of the data from the front end and create the comment.
+# The user don't need to all they componenets of the Reviewed_At table to cmake the reivew.
+# Instead, the user need to take the index of the dish and the backend will fetch the corresponding
+# GM_Link, restaurant id, food id, and so on.
+# A small SQLAlchemy and a python code generate a new rid since we did nto used serial macro.
+#
 @app.route('/make_comment', methods=['POST'])
 def make_comment():
     try:
@@ -232,7 +249,6 @@ def make_comment():
         # print("rid=", rid)
 
         # fetches the GM_link and the fid for the review.
-
         cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
                                       FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
                                       WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
@@ -249,13 +265,10 @@ def make_comment():
         # print(GM_link)
         # print(names[int(Dish_num)][0])
         # Create a review and the create a reviewed_At relation to bond all of the components together.
-
         g.conn.execute('INSERT INTO reviews(rid, rating, picture, comment) VALUES(%s, %s, %s, %s)', rid, rating, picture, comment)
-        # try:
+
         g.conn.execute('INSERT INTO Reviewed_At(fid, user_name, rid, GM_link, date) VALUES (%s, %s, %s, %s, %s)', fid, user_name, rid, GM_link, date)
-        # except Exception as E:
-        #     g.conn.execute(text(f"""DELETE FROM Review WHERE rid='{rid}'; """))
-        #     return render_template('comments.html', error=f'ERROR:\nSomething went wrong. wrong date. Please input a vaild date.')
+
     except Exception as E:
         g.conn.execute(text(f"""DELETE FROM Reviews WHERE rid='{rid}'; """))
         return render_template('comments.html', error=f'ERROR:\nSomething went wrong. i.e., Foods index DNE, invalid date, wrong username, etc.')
@@ -273,7 +286,11 @@ def login():
             return redirect('index')
     return render_template('login.html', error=error)
 
+
+#
 # Example of adding new data to the database
+# Users will get an error if trying to create an existing user name or use an existing email.
+#
 @app.route('/add', methods=['POST'])
 def add():
     user_name = request.form['user_name']
@@ -287,7 +304,10 @@ def add():
     except Exception as E:
         return render_template('index.html', error=f'ERROR:\nThe user name {user_name} or the email {email} already exist.')
 
-
+#
+# Searching by name and location.
+# Front end requires a valid input.
+#
 @app.route('/search_by_location', methods=['POST'])
 def search_by_location():
     print(request.args)
@@ -301,10 +321,9 @@ def search_by_location():
                       Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND AT.GM_link = L.GM_link 
                       AND AT.res_id = R.res_id GROUP BY F.name, R.name, F.price, F.fid;"""))
 
-    # SELECT F.name AS Food, R.name AS restaurant, U.user_name, S.rating, S.comment
     names = []
     for result in cursor:
-      names.append(result)  # can also be accessed using result[0]
+      names.append(result)
     cursor.close()
 
     context = dict(data = names)
@@ -312,6 +331,9 @@ def search_by_location():
     return render_template("search.html", **context)
 
 
+#
+# When choosing a dish, the user can see all the comments ever been written on the dish.
+#
 @app.route('/dish_comments/<fid>')
 def dish_comments(fid):
         cursor = g.conn.execute(text(f"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture, S.rating, U.user_name
@@ -319,7 +341,6 @@ def dish_comments(fid):
                                          WHERE  Rev.fid = F.fid  AND F.fid = '{fid}' AND  AT.GM_link = Rev.GM_link AND
                                          AT.GM_link = L.GM_link AND AT.res_id = R.res_id
                                          AND S.rid = Rev.rid AND U.user_name = Rev.user_name;"""))
-
 
         names = []
         for result in cursor:
@@ -329,35 +350,13 @@ def dish_comments(fid):
         context = dict(data=names)
 
         return render_template('/dish_comments.html', **context)
-# @app.route('/dish_comments.html')
-# def another():
-#     return render_template("dish_comments.html")
 
 
-
-# @app.route('/dish_comments.html', methods=['POST'])
-# def search_by_location():
-#     print(request.args)
-
-#     fid = request.form['fid']
-#     cursor = g.conn.execute(text(f"""SELECT F.name AS Food, R.name AS restaurant, Rev.date, S.comment, S.picture, S.rating
-#                                      FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L, Reviews S
-#                                      WHERE  Rev.fid = F.fid  AND F.fid = '{fid}' AND  AT.GM_link = Rev.GM_link AND
-#                                      AT.GM_link = L.GM_link AND AT.res_id = R.res_id
-#                                      AND S.rid = Rev.rid;"""))
-
-#     names = []
-#     for result in cursor:
-#         names.append(result)  # can also be accessed using result[0]
-#     cursor.close()
-
-#     context = dict(data=names)
-
-#     return render_template('/dish_comments.html', **context)
-
-
-# New Page for Comment History!!!!!!
-
+#
+# History page.
+# Input: user_name.
+# Output: all comments made the this user.
+#
 @app.route('/comments_history.html')
 def comments_history():
     print(request.args)
@@ -380,7 +379,9 @@ def comments_history():
     # except Exception as E:
     #     return render_template("comments_history.html", error = f'ERROR:\nThe user name {names[0]} Does not exist')
 
-
+#
+# The POST method of the previous route.
+#
 @app.route('/comments_history_search', methods=['POST'])
 def comments_history_search():
     print(request.args)
@@ -402,6 +403,8 @@ def comments_history_search():
 
     return render_template("comments_history.html", **context)
 
+
+# main
 if __name__ == "__main__":
   import click
 

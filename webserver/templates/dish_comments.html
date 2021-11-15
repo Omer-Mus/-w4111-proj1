@@ -82,7 +82,7 @@
     </style>
 
     <body>
-        <div id ="the-title"></div>
+        <div id ="the-title">Comments for {{ data[0][0] }}</div>
         <div id="container">
             {% for n in data %}
             <div id="announcements">
@@ -91,13 +91,13 @@
                         {{ data.index(n)}}
                     </span>
                     <span class="announcement-subject">
-                        {{ n[0]}}
+                        Dish name: {{ n[0]}}
                     </span>
                     <span class="announcement-subject">
-                        {{ n[1]}}
+                       Restaurant: {{ n[1]}}
                     </span>
                     <span class="announcement-subject">
-                        {{ n[2]}}
+                        Date: {{ n[2]}}
                     </span>
                      <span class="announcement-subject">
                        Rating: {{ n[5]}}
@@ -109,12 +109,11 @@
                         Comment: {{ n[3]}}
                     </span>
                     <span class="announcement-subject">
-                        Picture: {{ n[4]}}
+                        Picture: <img class="images" src="{{n[4]}}">
                     </span>
                 </div>
             </div>
             {% endfor %}
-
         </div>
     </body>
 </html>

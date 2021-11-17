@@ -111,10 +111,10 @@ def index():
   # example of a database query
   #
 
-  cursor = g.conn.execute("""SELECT * FROM allergies""")
+  cursor = g.conn.execute("""SELECT allergy_name FROM allergies""")
   names = []
   for result in cursor:
-    names.append(result)  # can also be accessed using result[0]
+    names.append(str(result)[2:-3])  # can also be accessed using result[0]
   cursor.close()
 
   #
@@ -335,9 +335,13 @@ def add():
     name = request.form['name']
     email = request.form['email']
     sex = request.form['sex']
+    allergy = request.form['allergy']
 
     try:
+
         g.conn.execute('INSERT INTO Users(user_name, name, email, sex) VALUES (%s, %s, %s, %s)', user_name, name, email, sex)
+        if allergy != '':
+            g.conn.execute('INSERT INTO Sensitive_To(user_name,allergy_name) VALUES (%s, %s)', user_name, allergy)
         return redirect('/')
     except Exception as E:
         return render_template('index.html', error=f'ERROR:\nThe user name {user_name} or the email {email} already exist.')

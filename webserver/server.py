@@ -384,11 +384,68 @@ def dish_comments(fid):
         for result in cursor:
             names.append(result)  # can also be accessed using result[0]
         cursor.close()
-
+        names.append(fid)
         context = dict(data=names)
 
         return render_template('/dish_comments.html', **context)
 
+
+
+@app.route('/make_comment_in_comments_section/', methods=['POST'])
+def make_comment_in_comments_section():
+    try:
+        user_name = request.form['user_name']
+        rating = request.form['rating']
+        comment = request.form['comment']
+        picture = request.form['picture']
+        date = request.form['date']
+        fid = request.form['fid']
+        # print(type(fid))
+        # print("Type of: ", type(rating))
+
+
+        # Generate a new rid for the review.
+        cursor = g.conn.execute(text("""SELECT rid
+                                          FROM Reviews 
+                                          ORDER BY reviews 
+                                          DESC LIMIT 1;"""))
+        rid = str(cursor.fetchone())[2:-3]
+        rid = str(int(str(rid)) + 1)
+        cursor.close()
+
+        # print("rid=", rid)
+
+        # fetches the GM_link and the fid for the review.
+        # cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
+        #                               FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+        #                               WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+        #                               AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+
+        cursor = g.conn.execute(text(f"""SELECT DISTINCT L.GM_link
+                                            FROM Reviewed_At Rev, Found_At L, Foods F
+                                            WHERE F.fid = '{fid}' AND F.fid = Rev.fid AND
+                                            Rev.GM_link = L.GM_link"""))
+
+
+        names = []
+        for result in cursor:
+            names.append(result)
+        cursor.close()
+
+        # fid = names[int(Dish_num)][1]
+        GM_link = str(names[0])
+        GM_link = GM_link[2:-3]
+        # print("gm link: ", GM_link[2:-3])
+
+        # Create a review and the create a reviewed_At relation to bond all of the components together.
+        g.conn.execute('INSERT INTO reviews(rid, rating, picture, comment) VALUES(%s, %s, %s, %s)', rid, rating, picture, comment)
+
+        g.conn.execute('INSERT INTO Reviewed_At(fid, user_name, rid, GM_link, date) VALUES (%s, %s, %s, %s, %s)', fid, user_name, rid, GM_link, date)
+
+    except Exception as E:
+        g.conn.execute(text(f"""DELETE FROM Reviews WHERE rid='{rid}'; """))
+        return render_template(f'/dish_comments.html', error=f'ERROR:\nSomething went wrong. i.e., Foods index DNE, invalid date, wrong username, etc.')
+    return redirect(f'/dish_comments/{fid}')
 
 #
 # History page.

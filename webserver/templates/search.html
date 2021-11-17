@@ -89,22 +89,25 @@
   <body>
 
 <div id = "the-title">Search </div>
-<div><a href="/">Go back</a></div>
+<div><a href="/">  Go back</a></div>
 
     <div id="container">
         <div id = "announcement-editor">
+        <h2>Search by Name</h2>
         <form method="POST" action="/search_food">
             <input type="text" id="new-announcement-subject" class="form-control" name="search_food" placeholder="Enter the name" required>
             <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
         </form>
         </div>
 
+        <h2>Search by Location</h2>
         <div id = "announcement-editor">
         <form method="POST" action="/search_by_location">
            <input type="text" name="search_by_location" placeholder="Enter the name" required>
             <input type="text"  name="zip_code" inputmode="numeric" pattern="^(?(^00000(|-0000))|(\d{5}(|-\d{4})))$" maxlength = "5" minlength = "5" placeholder="Enter the zipcode" required>
             <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
         </form>
+
         </div>
 
         <h1>Results</h1>
@@ -128,11 +131,11 @@
                 Restaurant: {{n[1]}}
             </span>
             <span class="announcement-body">
-                Price: {{n[3]}} $
+                Price: $ {{n[3]}} 
             </span>
-                    <span class="announcement-body">
+                    <!-- <span class="announcement-body">
                        <img class="images" src="{{n[2]}}">
-                    </span>
+                    </span> -->
 
                     <!-- <span class="announcement-body">
                        <img class="images" src="{{n[3]}}">

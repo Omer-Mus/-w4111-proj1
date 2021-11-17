@@ -111,10 +111,10 @@ def index():
   # example of a database query
   #
 
-  cursor = g.conn.execute("""SELECT * FROM allergies""")
+  cursor = g.conn.execute("""SELECT allergy_name FROM allergies""")
   names = []
   for result in cursor:
-    names.append(result)  # can also be accessed using result[0]
+    names.append(str(result)[2:-3])  # can also be accessed using result[0]
   cursor.close()
 
   #
@@ -157,7 +157,7 @@ def index():
 #
 @app.route('/search_food', methods=['POST'])
 def search_food():
-  print(request.args)
+ #print(request.args)
 
   name = request.form['search_food']
   name  = name[0].upper() + name[1:].lower()
@@ -176,13 +176,72 @@ def search_food():
     names.append(result)  # can also be accessed using result[0]
   cursor.close()
 
+  context = dict(data = names)
+
+  return render_template("search.html", **context)
+
+@app.route('/search_by_category', methods=['POST'])
+def search_by_category():
+
+  category = request.form['search_by_category']
+  category = ' '.join(word[0].upper() + word[1:] for word in category.split())
+
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price, f.category, f.fid
+                                    FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U 
+                                    WHERE  (F.category LIKE '%{category}%') AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link 
+                                    AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name
+                                    GROUP BY Food, restaurant, f.price, f.category, f.fid"""))
+
+  names = []
+  for result in cursor:
+    names.append(result)  # can also be accessed using result[0]
+  cursor.close()
+
+  context = dict(data = names)
+
+  return render_template("search.html", **context)
+
+
+#
+# Users can search food without some allergies.
+# Users can reduce the search by excluding allregies if theu have.
+#
+@app.route('/search_food_allergy', methods=['POST'])
+def search_food_allergy():
+  print(request.args)
+
+  fname = request.form['fname']
+  original = fname
+  allergy = request.form['allergy']
+  fname  = fname[0].upper() + fname[1:].lower()
+  fname = ' '.join(word[0].upper() + word[1:] for word in fname.split())
+
+  print(fname, allergy)
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price, f.fid
+                                    FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U, Food_contain CC 
+                                    WHERE  (F.name LIKE '%{fname}%'OR F.name LIKE '%{original}%' OR F.name = 'name') AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link  
+                                    AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name AND CC.fid = F.fid 
+                                    AND F.fid NOT IN (SELECT Fo.fid FROM Foods Fo, Food_Contain FC WHERE Fo.fid = FC.fid and FC.allergy_name = '{allergy}')
+                                    GROUP BY Food, restaurant, f.price, f.fid;
+                                    """))
+
+  names = []
+  for result in cursor:
+    names.append(result)  # can also be accessed using result[0]
+    print(result)
+  cursor.close()
+
+  # cursor2 = g.conn.execute(text(F"""SELECT allergy_name FROM Allergies;"""))
+  # names2 = []
+  # for i in cursor2:
+  #   names2.append(i)
+  # cursor2.close()
 
 
   context = dict(data = names)
 
 
-  return render_template("search.html", **context)
-
+  return render_template("search.html", **context, )
 
 
 #
@@ -297,9 +356,13 @@ def add():
     name = request.form['name']
     email = request.form['email']
     sex = request.form['sex']
+    allergy = request.form['allergy']
 
     try:
+
         g.conn.execute('INSERT INTO Users(user_name, name, email, sex) VALUES (%s, %s, %s, %s)', user_name, name, email, sex)
+        if allergy != '':
+            g.conn.execute('INSERT INTO Sensitive_To(user_name,allergy_name) VALUES (%s, %s)', user_name, allergy)
         return redirect('/')
     except Exception as E:
         return render_template('index.html', error=f'ERROR:\nThe user name {user_name} or the email {email} already exist.')
@@ -346,11 +409,68 @@ def dish_comments(fid):
         for result in cursor:
             names.append(result)  # can also be accessed using result[0]
         cursor.close()
-
+        names.append(fid)
         context = dict(data=names)
 
         return render_template('/dish_comments.html', **context)
 
+
+
+@app.route('/make_comment_in_comments_section/', methods=['POST'])
+def make_comment_in_comments_section():
+    try:
+        user_name = request.form['user_name']
+        rating = request.form['rating']
+        comment = request.form['comment']
+        picture = request.form['picture']
+        date = request.form['date']
+        fid = request.form['fid']
+        # print(type(fid))
+        # print("Type of: ", type(rating))
+
+
+        # Generate a new rid for the review.
+        cursor = g.conn.execute(text("""SELECT rid
+                                          FROM Reviews 
+                                          ORDER BY reviews 
+                                          DESC LIMIT 1;"""))
+        rid = str(cursor.fetchone())[2:-3]
+        rid = str(int(str(rid)) + 1)
+        cursor.close()
+
+        # print("rid=", rid)
+
+        # fetches the GM_link and the fid for the review.
+        # cursor = g.conn.execute(text("""SELECT DISTINCT F.name AS Food, F.fid, R.name AS restaurant, AT.GM_link
+        #                               FROM Foods F, Restaurants R, reviewed_at Rev, found_at AT, Locations L
+        #                               WHERE  Rev.fid = F.fid AND  AT.GM_link = Rev.GM_link AND
+        #                               AT.GM_link = L.GM_link AND AT.res_id = R.res_id;"""))
+
+        cursor = g.conn.execute(text(f"""SELECT DISTINCT L.GM_link
+                                            FROM Reviewed_At Rev, Found_At L, Foods F
+                                            WHERE F.fid = '{fid}' AND F.fid = Rev.fid AND
+                                            Rev.GM_link = L.GM_link"""))
+
+
+        names = []
+        for result in cursor:
+            names.append(result)
+        cursor.close()
+
+        # fid = names[int(Dish_num)][1]
+        GM_link = str(names[0])
+        GM_link = GM_link[2:-3]
+        # print("gm link: ", GM_link[2:-3])
+
+        # Create a review and the create a reviewed_At relation to bond all of the components together.
+        g.conn.execute('INSERT INTO reviews(rid, rating, picture, comment) VALUES(%s, %s, %s, %s)', rid, rating, picture, comment)
+
+        g.conn.execute('INSERT INTO Reviewed_At(fid, user_name, rid, GM_link, date) VALUES (%s, %s, %s, %s, %s)', fid, user_name, rid, GM_link, date)
+
+    except Exception as E:
+        g.conn.execute(text(f"""DELETE FROM Reviews WHERE rid='{rid}'; """))
+        return render_template(f'/dish_comments.html', error=f'ERROR:\nSomething went wrong. i.e., Foods index DNE, invalid date, wrong username, etc.')
+    return redirect(f'/dish_comments/{fid}')
 
 #
 # History page.

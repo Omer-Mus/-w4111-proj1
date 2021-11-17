@@ -14,7 +14,9 @@
     width: 600px;
     margin: 0px auto;
 }
-
+    .header {
+        text-align: center;
+    }
 #announcement-editor {
     margin-top: 20px;
     margin-bottom: 40px;
@@ -58,8 +60,8 @@
 .images {
     display: block;
     margin-bottom: 10px;
-    width: 80px;
-    height: 80px;
+    width: 220px;
+    height: 220px;
 }
 .announcement {
     display: block;
@@ -100,8 +102,18 @@
         </form>
         </div>
 
-        <h2>Search by Location</h2>
         <div id = "announcement-editor">
+
+        <h2>Search by Category</h2>
+        <form method="POST" action="/search_by_category">
+            <input type="text" name="search_by_category" class = "form-control" placeholder="Enter type (Italian, Dumpling ...)" required>
+            <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
+         </form>
+
+        </div>
+
+        <div id = "announcement-editor">
+        <h2>Search food by name and location</h2>
         <form method="POST" action="/search_by_location">
            <input type="text" name="search_by_location" placeholder="Enter the name" required>
             <input type="text"  name="zip_code" inputmode="numeric" pattern="^(?(^00000(|-0000))|(\d{5}(|-\d{4})))$" maxlength = "5" minlength = "5" placeholder="Enter the zipcode" required>
@@ -110,7 +122,16 @@
 
         </div>
 
-        <h1>Results</h1>
+        <div id = "announcement-editor">
+            <h3>To search foods that DOES NOT contain allergies write down the food name and then the allergy name.</h3>
+        <form method="POST" action="/search_food_allergy">
+           <input type="text" name="fname" placeholder="Enter the name" required>
+            <input type="text"  name="allergy" placeholder="Enter allergy" required>
+            <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
+        </form>
+        </div>
+
+        <h1 class="header">Results</h1>
 
 
     {% for n in data %}

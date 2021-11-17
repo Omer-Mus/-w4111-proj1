@@ -191,7 +191,16 @@
             <input type="radio" name="sex" value="M"> Male<br>
             <input type="radio" name="sex" value="F"> Female<br>
             <input type="radio" name="sex" value="O"> Other<br>
-             <input id="reset-button" type="reset"  class="btn btn-primary" value="Reset">
+            <label for="allergy">If you have an allergy, tell us here:</label>
+        <br>
+            <select id="allergy" name="allergy">
+                <option value=""></option>
+                {% for n in data %}
+                    <option value="{{n}}">{{n}}</option>
+                {% endfor %}
+            </select>
+        <br>
+             <input id="reset-button" type="reset"  class="btn btn-primary" value="reset">
             <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
 
         </form>

@@ -30,6 +30,10 @@
 
 }
 
+.header {
+    text-align: center;
+}
+
 #the-title {
 
     margin-bottom: 10px;
@@ -54,8 +58,8 @@
 .images {
     display: block;
     margin-bottom: 10px;
-    width: 80px;
-    height: 80px;
+    width: 220px;
+    height: 220px;
 }
 .announcement {
     display: block;
@@ -82,39 +86,70 @@
     </style>
 
     <body>
-        <div id ="the-title">Comments for {{ data[0][0] }}</div>
+        {% if data %}
+            <div id ="the-title">Comments for {{ data[0][0] }}</div>
+        {% endif %}
         <div id="container">
-            {% for n in data %}
+
+            <div id="announcement-editor">
+                <h1 class="header">Write a comment for this dish here!</h1>
+             <form method="POST" action="/make_comment_in_comments_section">
+                <input type="number" class="form-control" step="0.01" min="0" max="5" name="rating" placeholder="(0 to 5)" required>
+                <textarea id="new-announcement-body" class="form-control" name="comment" placeholder="Write a comment here"></textarea>
+                <input type="text" class="form-control" name="picture" placeholder="Picture">
+                 <input type="text" class="form-control" name="user_name" placeholder="user name" required>
+                 <input type="hidden" name="fid" value="{{data | last}}" readonly>
+                <input type="date" name="date" id="txtDate"  require>
+
+                <input id="submit-button" type="submit"  class="btn btn-primary" value="Submit">
+            </form>
+            </div>
+
+                <div>
+            <div class="alert-error">
+                    {% if error %}
+                        {{ error }}
+                    {% endif %}
+                </div>
+        </div>
+
+            {% for n in range(data | length-1) %}
             <div id="announcements">
                 <div class="announcement">
                     <span class="announcement-subject">
-                        {{ data.index(n)}}
+                        {{ data.index(data[n])}}
                     </span>
                     <span class="announcement-subject">
-                        Dish name: {{ n[0]}}
+                        Dish name: {{ data[n][0]}}
                     </span>
                     <span class="announcement-subject">
-                       Restaurant: {{ n[1]}}
+                       Restaurant: {{ data[n][1]}}
                     </span>
                     <span class="announcement-subject">
-                        Date: {{ n[2]}}
+                        Date: {{ data[n][2]}}
                     </span>
                      <span class="announcement-subject">
-                       Rating: {{ n[5]}}
+                       Rating: {{ data[n][5]}}
                     </span>
                     <span class="announcement-subject">
-                        By: {{ n[6]}}
+                        By: {{ data[n][6]}}
                     </span>
                     <span class="announcement-subject">
-                        Comment: {{ n[3]}}
+                        Comment: {{ data[n][3]}}
                     </span>
                     <span class="announcement-subject">
-                        Picture: <img class="images" src="{{n[4]}}">
+                        Picture: <img class="images" src="{{data[n][4]}}">
                     </span>
                 </div>
             </div>
             {% endfor %}
         </div>
+    <script>
+
+        function loc() {
+            document.getElementById("fid").innerHTML = window.location.href;
+        }
+    </script>
     </body>
 </html>
 

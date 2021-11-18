@@ -186,7 +186,7 @@ def search_by_category():
   category = request.form['search_by_category']
   category = ' '.join(word[0].upper() + word[1:] for word in category.split())
 
-  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price, f.category, f.fid
+  cursor = g.conn.execute(text(F"""SELECT F.name AS Food , R.name AS restaurant, AVG(S.rating), f.price, f.fid
                                     FROM Foods F, Restaurants R, reviewed_at Rev, reviews S, found_at AT, Locations L, Users U 
                                     WHERE  (F.category LIKE '%{category}%') AND Rev.rid = S.rid AND Rev.fid = F.fid AND AT.GM_link = Rev.GM_link 
                                     AND AT.GM_link = L.GM_link AND AT.res_id = R.res_id AND U.user_name = Rev.user_name

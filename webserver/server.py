@@ -4,7 +4,7 @@ Authors: Omer Mustel (om2349), Dayna Lee (dl3410)
 Date: Nov 15, 2021
 
 DB Changes log:
-    - tables change: Reviewed_At p_key changed (rid excluded). Now users can review a food only once.
+
 
 index.html:
     create a username.
@@ -31,7 +31,7 @@ app = Flask(__name__, template_folder=tmpl_dir)
 #
 #     DATABASEURI = "postgresql://gravano:foobar@34.74.246.148/proj1part2"
 #
-DATABASEURI = "postgresql://om2349:4506@34.74.246.148/proj1part2"
+DATABASEURI = str(input("Enter URI: "))
 
 
 #
